@@ -13,7 +13,7 @@ setlocal autoindent
 setlocal nosmartindent
 
 setlocal indentexpr=GetTrefleIndent()
-setlocal indentkeys+=0=end,0=until,0=elseif,0=else
+setlocal indentkeys+=0=end,0=until,0=elseif,0=else,0=after,0=aftertry,0=catch
 
 " Only define the function once.
 if exists("*GetTrefleIndent")
