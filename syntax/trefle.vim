@@ -20,35 +20,30 @@ function! s:FoldableRegion(tag, name, expr)
   exec synexpr
 endfunction
 
-"" Clusters
-"syntax cluster luaBase contains=luaComment,luaCommentLong,luaConstant,luaNumber,luaString,luaStringLong,luaBuiltIn
-"syntax cluster luaExpr contains=@luaBase,luaTable,luaParen,luaBracket,luaSpecialTable,luaSpecialValue,luaOperator,luaSymbolOperator,luaEllipsis,luaComma,luaFunc,luaFuncCall,luaError
-"syntax cluster luaStat
-"      \ contains=@luaExpr,luaIfThen,luaBlock,luaLoop,luaGoto,luaLabel,luaLocal,luaStatement,luaSemiCol,luaErrHand
+" Clusters
+syntax cluster trefleBase
+      \ contains=trefleComment,trefleCommentLong,trefleConstant,trefleNumber,trefleString,trefleStringLong,trefleBuiltIn
+syntax cluster trefleExpr
+      \ contains=@trefleBase,trefleTable,trefleParen,trefleBracket,trefleSpecialTable,trefleSpecialValue,trefleOperator,trefleSymbolOperator,trefleComma,trefleFunc,trefleFuncCall,trefleError
+syntax cluster trefleStat
+      \ contains=@trefleExpr,trefleIfThen,trefleDefer,trefleDeferTry,trefleTry,trefleBlock,trefleLoop,trefleGoto,trefleLabel,trefleLocal,trefleGlobal,trefleStatement,trefleSemiCol,trefleErrHand
 
 syntax match trefleNoise /\%(\.\|,\|:\|\;\)/
 
-"" Symbols
-"call s:FoldableRegion('table', 'luaTable',
-"      \ 'transparent matchgroup=luaBraces start="{" end="}" contains=@luaExpr')
-"syntax region luaParen   transparent matchgroup=luaParens   start='(' end=')' contains=@luaExpr
-"syntax region luaBracket transparent matchgroup=luaBrackets start="\[" end="\]" contains=@luaExpr
-"syntax match  luaComma ","
-"syntax match  luaSemiCol ";"
-"if !exists('g:lua_syntax_nosymboloperator')
-"  if exists('g:lua_syntax_fancynotequal')
-"    syntax match luaNotEqOperator "\V~=" conceal cchar=≠
-"    setlocal conceallevel=2
-"  endi
-"  syntax match luaSymbolOperator "[#<>=~^&|*/%+-]\|\.\." contains=luaNotEqOperator
-"endi
-"syntax match  luaEllipsis "\.\.\."
-"
-"" Catch errors caused by unbalanced brackets and keywords
-"syntax match luaError ")"
-"syntax match luaError "}"
-"syntax match luaError "\]"
-"syntax match luaError "\<\%(end\|else\|elseif\|then\|until\)\>"
+" Symbols
+call s:FoldableRegion('table', 'trefleTable',
+      \ 'transparent matchgroup=trefleBraces start="{" end="}" contains=@trefleExpr')
+syntax region trefleParen   transparent matchgroup=trefleParens   start='(' end=')' contains=@trefleExpr
+syntax region trefleBracket transparent matchgroup=trefleBrackets start="\[" end="\]" contains=@trefleExpr
+syntax match  trefleComma ","
+syntax match  trefleSemiCol ";"
+syntax match  trefleSymbolOperator "[#!<>=~^&|*/%+-]\|\.\{2,3}"
+
+" Catch errors caused by unbalanced brackets and keywords
+syntax match trefleError ")"
+syntax match trefleError "}"
+syntax match trefleError "\]"
+syntax match trefleError "\<\%(end\|else\|elseif\|then\|in\|after\|aftertry\|catch\)\>"
 
 " Shebang at the start
 syntax match trefleComment "\%^#!.*"
@@ -60,19 +55,19 @@ call s:FoldableRegion('comment', 'trefleCommentLong',
       \ 'matchgroup=trefleCommentLongTag start="--\[\z(=*\)\[" end="\]\z1\]" contains=trefleCommentTodo,trefleDocTag,@Spell')
 syntax match   trefleDocTag contained "\s@\k\+"
 
-"" Function calls
-"syntax match luaFuncCall /\k\+\%(\s*[{('"]\)\@=/
-"
-"" Functions
-"call s:FoldableRegion('function', 'luaFunc',
-"      \ 'transparent matchgroup=luaFuncKeyword start="\<function\>" end="\<end\>" contains=@luaStat,luaFuncSig')
-"syntax region luaFuncSig contained transparent start="\(\<function\>\)\@<=" end=")" contains=luaFuncId,luaFuncArgs keepend
-"syntax match luaFuncId contained "[^(]*(\@=" contains=luaFuncTable,luaFuncName
-"syntax match luaFuncTable contained /\k\+\%(\s*[.:]\)\@=/
-"syntax match luaFuncName contained "[^(.:]*(\@="
-"syntax region luaFuncArgs contained transparent matchgroup=luaFuncParens start=/(/ end=/)/ contains=@luaBase,luaFuncArgName,luaFuncArgComma,luaEllipsis
-"syntax match luaFuncArgName contained /\k\+/
-"syntax match luaFuncArgComma contained /,/
+" Function calls
+syntax match trefleFuncCall /\k\+\%(\s*[{('"!]\)\@=/
+
+" Functions
+call s:FoldableRegion('function', 'trefleFunc',
+      \ 'transparent matchgroup=trefleFuncKeyword start="\<fn\>" end="\<end\>" contains=@trefleStat,trefleFuncSig')
+syntax region trefleFuncSig contained transparent start="\(\<function\>\)\@<=" end=")" contains=trefleFuncId,trefleFuncArgs keepend
+syntax match trefleFuncId contained "[^(]*(\@=" contains=trefleFuncTable,trefleFuncName
+syntax match trefleFuncTable contained /\k\+\%(\s*[.:]\)\@=/
+syntax match trefleFuncName contained "[^(.:]*(\@="
+syntax region trefleFuncArgs contained transparent matchgroup=trefleFuncParens start=/(/ end=/)/ contains=@trefleBase,trefleFuncArgName,trefleFuncArgComma,trefleEllipsis
+syntax match trefleFuncArgName contained /\k\+/
+syntax match trefleFuncArgComma contained /,/
 
 " if ... then
 syntax region trefleIfThen transparent matchgroup=trefleCond start="\<if\>" end="\<then\>"me=e-4 contains=@trefleExpr nextgroup=trefleThenEnd skipwhite skipempty
@@ -86,6 +81,22 @@ syntax region trefleElseifThen contained transparent matchgroup=trefleCond start
 
 " else
 syntax keyword trefleElse contained else
+
+" defer ... end
+call s:FoldableRegion('control', 'trefleDefer',
+      \ 'transparent matchgroup=trefleStatement start="\<defer\>" end="\<after\>"me=e-5 contains=@trefleStat nextgroup=trefleAfter')
+call s:FoldableRegion('control', 'trefleDeferTry',
+      \ 'transparent matchgroup=trefleStatement start="\<defer\>" end="\<aftertry\>"me=e-8 contains=@trefleStat nextgroup=trefleAftertry')
+call s:FoldableRegion('control', 'trefleAfter',
+      \ 'transparent matchgroup=trefleStatement start="\<after\>" end="\<end\>" contains=@trefleStat contained')
+call s:FoldableRegion('control', 'trefleAftertry',
+      \ 'transparent matchgroup=trefleStatement start="\<aftertry\>" end="\<catch\>"me=e-5 contains=@trefleStat nextgroup=trefleCatch contained')
+
+" try ... catch ... end
+call s:FoldableRegion('control', 'trefleTry',
+      \ 'transparent matchgroup=trefleStatement start="\<try\>" end="\<catch\>"me=e-5 contains=@trefleStat nextgroup=trefleCatch')
+call s:FoldableRegion('control', 'trefleCatch',
+      \ 'transparent matchgroup=trefleStatement start="\<catch\>" end="\<end\>" contains=@trefleStat contained')
 
 " do ... end
 call s:FoldableRegion('control', 'trefleLoopBlock',
@@ -187,29 +198,28 @@ syntax match trefleFloat  "\<\d\+[eE][-+]\=\d\+\>"
 
 "" Define the default highlighting.
 command -nargs=+ HiLink hi def link <args>
-"  HiLink luaParens           Noise
-"  HiLink luaBraces           Structure
-"  HiLink luaBrackets         Noise
+HiLink trefleParens           Noise
+HiLink trefleBraces           Structure
+HiLink trefleBrackets         Noise
 HiLink trefleBuiltIn          Special
 HiLink trefleComment          Comment
 HiLink trefleCommentLongTag   trefleCommentLong
 HiLink trefleCommentLong      trefleComment
 HiLink trefleCommentTodo      Todo
-"  HiLink luaCond             Conditional
+HiLink trefleCond             Conditional
 HiLink trefleConstant         Constant
 HiLink trefleDocTag           Underlined
-"  HiLink luaEllipsis         Special
 HiLink trefleElse             Conditional
-"  HiLink luaError            Error
+HiLink trefleError            Error
 HiLink trefleFloat            Float
-"  HiLink luaFuncArgName      Noise
-"  HiLink luaFuncCall         PreProc
-"  HiLink luaFuncId           Function
-"  HiLink luaFuncName         luaFuncId
-"  HiLink luaFuncTable        luaFuncId
-"  HiLink luaFuncKeyword      luaFunction
-"  HiLink luaFunction         Structure
-"  HiLink luaFuncParens       Noise
+HiLink trefleFuncArgName      Noise
+HiLink trefleFuncCall         PreProc
+HiLink trefleFuncId           Function
+HiLink trefleFuncName         trefleFuncId
+HiLink trefleFuncTable        trefleFuncId
+HiLink trefleFuncKeyword      trefleFunction
+HiLink trefleFunction         Structure
+HiLink trefleFuncParens       Noise
 HiLink trefleGlobal           Type
 HiLink trefleGoto             trefleStatement
 HiLink trefleGotoLabel        Noise
@@ -217,11 +227,10 @@ HiLink trefleIn               Repeat
 HiLink trefleLabel            Label
 HiLink trefleLocal            Type
 HiLink trefleNumber           Number
-"  HiLink luaSymbolOperator   luaOperator
-"  HiLink luaNotEqOperator    luaOperator
+HiLink trefleSymbolOperator   Operator
 HiLink trefleOperator         Operator
 HiLink trefleRepeat           Repeat
-"  HiLink luaSemiCol          Delimiter
+HiLink trefleSemiCol          Delimiter
 "  HiLink luaSpecialTable     Special
 "  HiLink luaSpecialValue     PreProc
 HiLink trefleStatement        Statement
