@@ -1,7 +1,8 @@
 # vim-trefle
 
 Vim syntax highlighting, file type detection and indentation support for the
-[trefle]() programming language. Adapted from [vim-lua](https://github.com/tbastos/vim-lua).
+[trefle](https://github.com/mna/trefle) programming language (to be released).
+Adapted from [vim-lua](https://github.com/tbastos/vim-lua).
 
 ## License
 
