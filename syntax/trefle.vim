@@ -26,7 +26,7 @@ syntax cluster trefleBase
 syntax cluster trefleExpr
       \ contains=@trefleBase,trefleTable,trefleParen,trefleBracket,trefleSpecialTable,trefleSpecialValue,trefleOperator,trefleSymbolOperator,trefleComma,trefleFunc,trefleFuncCall,trefleError
 syntax cluster trefleStat
-      \ contains=@trefleExpr,trefleIfThen,trefleDefer,trefleDeferTry,trefleTry,trefleBlock,trefleLoop,trefleGoto,trefleLabel,trefleLocal,trefleGlobal,trefleStatement,trefleSemiCol,trefleErrHand
+      \ contains=@trefleExpr,trefleIfThen,trefleDefer,trefleTry,trefleBlock,trefleLoop,trefleGoto,trefleLabel,trefleLocal,trefleGlobal,trefleStatement,trefleSemiCol,trefleErrHand
 
 syntax match trefleNoise /\%(\.\|,\|:\|\;\)/
 
@@ -84,19 +84,14 @@ syntax keyword trefleElse contained else
 
 " defer ... end
 call s:FoldableRegion('control', 'trefleDefer',
-      \ 'transparent matchgroup=trefleStatement start="\<defer\>" end="\<after\>"me=e-5 contains=@trefleStat nextgroup=trefleAfter')
-call s:FoldableRegion('control', 'trefleDeferTry',
-      \ 'transparent matchgroup=trefleStatement start="\<defer\>" end="\<aftertry\>"me=e-8 contains=@trefleStat nextgroup=trefleAftertry')
-call s:FoldableRegion('control', 'trefleAfter',
-      \ 'transparent matchgroup=trefleStatement start="\<after\>" end="\<end\>" contains=@trefleStat contained')
-call s:FoldableRegion('control', 'trefleAftertry',
-      \ 'transparent matchgroup=trefleStatement start="\<aftertry\>" end="\<catch\>"me=e-5 contains=@trefleStat nextgroup=trefleCatch contained')
+      \ 'transparent matchgroup=trefleStatement start="\<defer\>" end="\<end\>" contains=@trefleStat,trefleAfter,trefleAfterTry,trefleCatch')
+syntax keyword trefleAfter contained after
+syntax keyword trefleAfterTry contained aftertry
 
 " try ... catch ... end
 call s:FoldableRegion('control', 'trefleTry',
-      \ 'transparent matchgroup=trefleStatement start="\<try\>" end="\<catch\>"me=e-5 contains=@trefleStat nextgroup=trefleCatch')
-call s:FoldableRegion('control', 'trefleCatch',
-      \ 'transparent matchgroup=trefleStatement start="\<catch\>" end="\<end\>" contains=@trefleStat contained')
+      \ 'transparent matchgroup=trefleStatement start="\<try\>" end="\<end\>" contains=@trefleStat,trefleCatch')
+syntax keyword trefleCatch contained catch
 
 " do ... end
 call s:FoldableRegion('control', 'trefleLoopBlock',
@@ -199,9 +194,12 @@ syntax match trefleFloat  "\<\d\+[eE][-+]\=\d\+\>"
 "" Define the default highlighting.
 command -nargs=+ HiLink hi def link <args>
 HiLink trefleParens           Noise
+HiLink trefleAfter            trefleStatement
+HiLink trefleAfterTry         trefleStatement
 HiLink trefleBraces           Structure
 HiLink trefleBrackets         Noise
 HiLink trefleBuiltIn          Special
+HiLink trefleCatch            trefleStatement
 HiLink trefleComment          Comment
 HiLink trefleCommentLongTag   trefleCommentLong
 HiLink trefleCommentLong      trefleComment
