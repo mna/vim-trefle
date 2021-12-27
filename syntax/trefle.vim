@@ -137,59 +137,60 @@ syntax match trefleFloat  "\.\d\+\%([eE][-+]\=\d\+\)\=\>"
 " Floating point constant, without dot, with exponent
 syntax match trefleFloat  "\<\d\+[eE][-+]\=\d\+\>"
 
-"" Special names from the Standard Library
-"if !exists('g:lua_syntax_nostdlib')
-"    syntax keyword luaSpecialValue
-"          \ module
-"          \ require
-"
-"    syntax keyword luaSpecialTable _G
-"
-"    syntax keyword luaErrHand
-"          \ assert
-"          \ error
-"          \ pcall
-"          \ xpcall
-"
-"  if !exists('g:lua_syntax_noextendedstdlib')
-"    syntax keyword luaSpecialTable
-"          \ bit32
-"          \ coroutine
-"          \ debug
-"          \ io
-"          \ math
-"          \ os
-"          \ package
-"          \ string
-"          \ table
-"          \ utf8
-"
-"    syntax keyword luaSpecialValue
-"          \ _VERSION
-"          \ collectgarbage
-"          \ dofile
-"          \ getfenv
-"          \ getmetatable
-"          \ ipairs
-"          \ load
-"          \ loadfile
-"          \ loadstring
-"          \ next
-"          \ pairs
-"          \ print
-"          \ rawequal
-"          \ rawget
-"          \ rawlen
-"          \ rawset
-"          \ select
-"          \ setfenv
-"          \ setmetatable
-"          \ tonumber
-"          \ tostring
-"          \ type
-"          \ unpack
-"  endif
-"endif
+" Special names from the Standard Library
+if !exists('g:trefle_syntax_nostdlib')
+    syntax keyword trefleSpecialValue
+          \ require
+
+    syntax keyword trefleSpecialTable
+          \ _ENV
+          \ LUA
+
+    syntax keyword trefleErrHand
+          \ assert
+          \ raise
+
+  if !exists('g:trefle_syntax_noextendedstdlib')
+    syntax keyword trefleSpecialTable
+          "\ bit32
+          "\ coroutine
+          "\ debug
+          "\ io
+          "\ math
+          "\ os
+          \ package
+          "\ string
+          "\ table
+          "\ utf8
+
+    syntax keyword trefleSpecialValue
+          "\ _VERSION
+          "\ collectgarbage
+          "\ dofile
+          "\ getfenv
+          "\ getmetatable
+          "\ ipairs
+          "\ load
+          "\ loadfile
+          "\ loadstring
+          "\ next
+          "\ pairs
+          \ print
+          \ range
+          \ rangei
+          "\ rawequal
+          "\ rawget
+          "\ rawlen
+          "\ rawset
+          "\ select
+          "\ setfenv
+          "\ setmetatable
+          "\ tonumber
+          "\ tostring
+          "\ type
+          "\ unpack
+  endif
+endif
 
 "" Define the default highlighting.
 command -nargs=+ HiLink hi def link <args>
@@ -229,13 +230,13 @@ HiLink trefleSymbolOperator   Operator
 HiLink trefleOperator         Operator
 HiLink trefleRepeat           Repeat
 HiLink trefleSemiCol          Delimiter
-"  HiLink luaSpecialTable     Special
-"  HiLink luaSpecialValue     PreProc
+HiLink trefleSpecialTable     Special
+HiLink trefleSpecialValue     PreProc
 HiLink trefleStatement        Statement
 HiLink trefleString           String
 HiLink trefleStringLong       trefleString
 HiLink trefleStringSpecial    SpecialChar
-"  HiLink luaErrHand          Exception
+HiLink trefleErrHand          Exception
 delcommand HiLink
 
 let b:current_syntax = "trefle"
