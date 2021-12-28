@@ -187,7 +187,7 @@ if !exists('g:trefle_syntax_nostdlib')
           "\ setmetatable
           "\ tonumber
           "\ tostring
-          "\ type
+          \ type
           "\ unpack
   endif
 endif
