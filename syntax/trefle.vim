@@ -164,11 +164,11 @@ if !exists('g:trefle_syntax_nostdlib')
           "\ utf8
 
     syntax keyword trefleSpecialValue
-          "\ _VERSION
+          \ VERSION
           "\ collectgarbage
           "\ dofile
           "\ getfenv
-          "\ getmetatable
+          \ getmt
           "\ ipairs
           "\ load
           "\ loadfile
@@ -184,7 +184,7 @@ if !exists('g:trefle_syntax_nostdlib')
           "\ rawset
           "\ select
           "\ setfenv
-          "\ setmetatable
+          \ setmt
           "\ tonumber
           "\ tostring
           \ type
