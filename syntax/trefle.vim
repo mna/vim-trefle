@@ -76,7 +76,7 @@ syntax region trefleClassSig contained transparent start="\(\<class\>\)\@<=" end
 syntax match trefleClassId contained /\k\+/
 syntax region trefleClassArg contained transparent matchgroup=trefleClassParens start=/(/ end=/)/ contains=@trefleExpr
 call s:FoldableRegion('method', 'trefleMethodDef',
-      \ 'contained transparent start="[^(.:]*(\@=" end="\<end\>" contains=trefleFuncArgs,@trefleStat')
+      \ 'contained matchgroup=trefleFuncName transparent start="\k\+\s*\((\)\@<=" end="\<end\>" contains=trefleFuncArgs,@trefleStat')
 
 
 " if ... then
