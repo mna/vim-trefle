@@ -24,7 +24,7 @@ endfunction
 syntax cluster trefleBase
       \ contains=trefleComment,trefleCommentLong,trefleConstant,trefleNumber,trefleString,trefleStringLong,trefleBuiltIn
 syntax cluster trefleExpr
-      \ contains=@trefleBase,trefleTable,trefleParen,trefleBracket,trefleSpecialTable,trefleSpecialValue,trefleOperator,trefleSymbolOperator,trefleComma,trefleFunc,trefleFuncCall,trefleError
+      \ contains=@trefleBase,trefleTable,trefleParen,trefleBracket,trefleSpecialTable,trefleSpecialValue,trefleOperator,trefleSymbolOperator,trefleComma,trefleFunc,trefleClass,trefleFuncCall,trefleError
 syntax cluster trefleStat
       \ contains=@trefleExpr,trefleIfThen,trefleDefer,trefleTry,trefleBlock,trefleLoop,trefleGoto,trefleLabel,trefleLocal,trefleGlobal,trefleStatement,trefleSemiCol,trefleErrHand
 
@@ -32,7 +32,7 @@ syntax match trefleNoise /\%(\.\|,\|:\|\;\)/
 
 " Symbols
 call s:FoldableRegion('table', 'trefleTable',
-      \ 'transparent matchgroup=trefleBraces start="{" end="}" contains=@trefleExpr')
+      \ 'transparent matchgroup=trefleBraces start="\(lua\|set\|tup\)\?\s*{" end="}" contains=@trefleExpr')
 syntax region trefleParen   transparent matchgroup=trefleParens   start='(' end=')' contains=@trefleExpr
 syntax region trefleBracket transparent matchgroup=trefleBrackets start="\[" end="\]" contains=@trefleExpr
 syntax match  trefleComma ","
@@ -61,13 +61,23 @@ syntax match trefleFuncCall /\k\+\%(\s*[{('"!]\)\@=/
 " Functions
 call s:FoldableRegion('function', 'trefleFunc',
       \ 'transparent matchgroup=trefleFuncKeyword start="\<fn\>" end="\<end\>" contains=@trefleStat,trefleFuncSig')
-syntax region trefleFuncSig contained transparent start="\(\<function\>\)\@<=" end=")" contains=trefleFuncId,trefleFuncArgs keepend
+syntax region trefleFuncSig contained transparent start="\(\<fn\>\)\@<=" end=")" contains=trefleFuncId,trefleFuncArgs keepend
 syntax match trefleFuncId contained "[^(]*(\@=" contains=trefleFuncTable,trefleFuncName
 syntax match trefleFuncTable contained /\k\+\%(\s*[.:]\)\@=/
 syntax match trefleFuncName contained "[^(.:]*(\@="
 syntax region trefleFuncArgs contained transparent matchgroup=trefleFuncParens start=/(/ end=/)/ contains=@trefleBase,trefleFuncArgName,trefleFuncArgComma,trefleEllipsis
 syntax match trefleFuncArgName contained /\k\+/
 syntax match trefleFuncArgComma contained /,/
+
+" Classes
+call s:FoldableRegion('class', 'trefleClass',
+      \ 'transparent matchgroup=trefleClassKeyword start="\<class\>" end="\<end\>" contains=trefleClassSig,trefleMethodDef')
+syntax region trefleClassSig contained transparent start="\(\<class\>\)\@<=" end="do" contains=trefleClassId,trefleClassArg keepend
+syntax match trefleClassId contained /\k\+/
+syntax region trefleClassArg contained transparent matchgroup=trefleClassParens start=/(/ end=/)/ contains=@trefleExpr
+call s:FoldableRegion('method', 'trefleMethodDef',
+      \ 'contained transparent start="[^(.:]*(\@=" end="\<end\>" contains=trefleFuncArgs,@trefleStat')
+
 
 " if ... then
 syntax region trefleIfThen transparent matchgroup=trefleCond start="\<if\>" end="\<then\>"me=e-4 contains=@trefleExpr nextgroup=trefleThenEnd skipwhite skipempty
@@ -152,43 +162,19 @@ if !exists('g:trefle_syntax_nostdlib')
 
   if !exists('g:trefle_syntax_noextendedstdlib')
     syntax keyword trefleSpecialTable
-          "\ bit32
-          "\ coroutine
-          "\ debug
-          "\ io
-          "\ math
-          "\ os
+          \ conv
+          \ math
           \ package
-          "\ string
-          "\ table
-          "\ utf8
+          \ string
 
     syntax keyword trefleSpecialValue
           \ VERSION
-          "\ collectgarbage
-          "\ dofile
-          "\ getfenv
           \ getmt
-          "\ ipairs
-          "\ load
-          "\ loadfile
-          "\ loadstring
-          "\ next
-          "\ pairs
           \ print
           \ range
           \ rangei
-          "\ rawequal
-          "\ rawget
-          "\ rawlen
-          "\ rawset
-          "\ select
-          "\ setfenv
           \ setmt
-          "\ tonumber
-          "\ tostring
           \ type
-          "\ unpack
   endif
 endif
 
@@ -201,6 +187,8 @@ HiLink trefleBraces           Structure
 HiLink trefleBrackets         Noise
 HiLink trefleBuiltIn          Special
 HiLink trefleCatch            trefleStatement
+HiLink trefleClassId          Function
+HiLink trefleClassKeyword     trefleFunction
 HiLink trefleComment          Comment
 HiLink trefleCommentLongTag   trefleCommentLong
 HiLink trefleCommentLong      trefleComment
